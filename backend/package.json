@@ -4,15 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "tsx watch src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "lint": "eslint .",
-  "format": "prettier --write .",
-  "prisma:generate": "prisma generate",
-  "prisma:migrate": "prisma migrate dev",
-  "prisma:studio": "prisma studio"
-},
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
     "prisma": "^6.16.3",
+    "slugify": "^1.6.9",
     "uuid": "^14.0.1",
     "zod": "^4.4.3"
   },

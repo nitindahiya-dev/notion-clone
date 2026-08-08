@@ -7,14 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  GUEST
+}
+
 model User {
   id       String @id @default(cuid())
   email    String @unique
   name     String
   password String
 
-  sessions      Session[]
-  refreshTokens RefreshToken[]
+  sessions         Session[]
+  refreshTokens    RefreshToken[]
+  workspaceMembers WorkspaceMember[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -55,4 +63,35 @@ model RefreshToken {
 
   @@index([userId])
   @@index([sessionId])
+}
+
+model Workspace {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  members WorkspaceMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(MEMBER)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
 }

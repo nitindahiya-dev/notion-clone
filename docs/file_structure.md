@@ -1,113 +1,148 @@
 notion-clone/
-├── README.md                         # Project overview and setup instructions
-├── .env.example                       # Root environment-variable template
+│
+├── README.md
+├── .env.example
 ├── .gitignore
 │
-├── backend/                           # Express API and database layer
+├── backend/
+│   │
 │   ├── package.json
-│   ├── package-lock.json               # Locked backend dependencies
-│   ├── prisma.config.ts               # Prisma CLI configuration
+│   ├── package-lock.json
+│   ├── prisma.config.ts
 │   ├── tsconfig.json
+│   │
 │   ├── prisma/
-│   │   ├── schema.prisma              # Database schema and relations
-│   │   └── migrations/                # Versioned database migrations
-│   │       ├── 20260806080544_init/
-│   │       │   └── migration.sql
-│   │       ├── 20260808082052_auth/
-│   │       │   └── migration.sql
-│   │       └── migration_lock.toml
+│   │   ├── schema.prisma
+│   │   └── migrations/
+│   │
 │   └── src/
-│       ├── index.ts                   # Application entry point
-│       ├── app.ts                     # Express app and middleware setup
-│       ├── server.ts                  # HTTP server startup
+│       │
+│       ├── index.ts
+│       ├── app.ts
+│       ├── server.ts
+│       │
 │       ├── config/
-│       │   ├── env.ts                 # Environment-variable loading
-│       │   └── jwt.ts                 # JWT configuration
-│       ├── controllers/               # HTTP request/response handlers
-│       │   └── auth.controller.ts
+│       │   ├── env.ts
+│       │   └── jwt.ts
+│       │
+│       ├── controllers/
+│       │   ├── auth.controller.ts
+│       │   └── workspace.controller.ts       
+│       │
 │       ├── database/
-│       │   └── prisma.ts              # Shared Prisma client
-│       ├── middlewares/               # Reusable request middleware
+│       │   └── prisma.ts
+│       │
+│       ├── middlewares/
 │       │   ├── auth.middleware.ts
 │       │   ├── error.middleware.ts
-│       │   └── validate.middleware.ts
-│       ├── repositories/              # Database access functions
+│       │   ├── validate.middleware.ts
+│       │   └── workspace.middleware.ts        
+│       │
+│       ├── repositories/
 │       │   ├── session.repository.ts
-│       │   └── user.repository.ts
-│       ├── routes/                    # API route definitions
+│       │   ├── user.repository.ts
+│       │   └── workspace.repository.ts        
+│       │
+│       ├── routes/
 │       │   ├── auth.routes.ts
+│       │   ├── workspace.routes.ts             
 │       │   └── index.ts
-│       ├── services/                  # Business logic
-│       │   └── auth.service.ts
-│       ├── types/                     # TypeScript type declarations
-│       │   └── express.d.ts
-│       ├── utils/                     # Shared backend helpers
+│       │
+│       ├── services/
+│       │   ├── auth.service.ts
+│       │   └── workspace.service.ts            
+│       │
+│       ├── types/
+│       │   ├── express.d.ts
+│       │   └── workspace.ts                    
+│       │
+│       ├── utils/
 │       │   ├── app-error.ts
 │       │   ├── hash.ts
 │       │   ├── jwt.ts
 │       │   └── response.ts
-│       └── validators/                # Request validation schemas
-│           └── auth.validator.ts
+│       │
+│       └── validators/
+│           ├── auth.validator.ts
+│           └── workspace.validator.ts          
 │
-├── frontend/                          # Next.js web application
+├── frontend/
+│   │
 │   ├── package.json
-│   ├── package-lock.json               # Locked frontend dependencies
+│   ├── package-lock.json
 │   ├── tsconfig.json
 │   ├── next-env.d.ts
 │   ├── next.config.ts
 │   ├── eslint.config.mjs
 │   ├── postcss.config.mjs
-│   ├── components.json                # UI component-library configuration
-│   ├── app/                           # App Router pages and layouts
+│   ├── components.json
+│   │
+│   ├── app/
 │   │   ├── globals.css
-│   │   ├── favicon.ico
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
+│   │   │
 │   │   ├── (auth)/
 │   │   │   ├── layout.tsx
-│   │   │   ├── forgot-password/page.tsx
-│   │   │   ├── login/page.tsx
-│   │   │   └── register/page.tsx
-│   │   └── dashboard/page.tsx
+│   │   │   ├── forgot-password/
+│   │   │   │   └── page.tsx
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   └── register/
+│   │   │       └── page.tsx
+│   │   │
+│   │   └── dashboard/
+│   │       └── page.tsx
+│   │
 │   ├── components/
-│   │   ├── auth/                      # Authentication-specific components
+│   │   │
+│   │   ├── auth/
 │   │   │   ├── auth-brand.tsx
 │   │   │   ├── auth-divider.tsx
 │   │   │   ├── google-button.tsx
 │   │   │   └── password-input.tsx
+│   │   │
+│   │   ├── workspace/                     
+│   │   │   ├── workspace-switcher.tsx
+│   │   │   ├── workspace-card.tsx
+│   │   │   ├── create-workspace-dialog.tsx
+│   │   │   ├── workspace-settings.tsx
+│   │   │   └── workspace-members.tsx
+│   │   │
 │   │   ├── providers/
-│   │   │   └── auth-provider.tsx      # Client-side auth context/provider
-│   │   └── ui/                        # Reusable UI primitives
+│   │   │   └── auth-provider.tsx
+│   │   │
+│   │   └── ui/
 │   │       ├── button.tsx
 │   │       ├── card.tsx
 │   │       ├── input.tsx
 │   │       ├── label.tsx
 │   │       └── separator.tsx
+│   │
 │   ├── lib/
-│   │   ├── api/                       # API client and endpoint functions
+│   │   ├── api/
 │   │   │   ├── auth.ts
-│   │   │   └── client.ts
-│   │   ├── validations/               # Frontend validation schemas
+│   │   │   ├── client.ts
+│   │   │   └── workspace.ts              
+│   │   │
+│   │   ├── validations/
 │   │   │   ├── auth.ts
-│   │   │   └── validations/            # Reserved for shared validation helpers
+│   │   │   └── workspace.ts               
+│   │   │
 │   │   └── utils.ts
+│   │
 │   ├── stores/
-│   │   └── auth.store.ts              # Client-side authentication state
+│   │   ├── auth.store.ts
+│   │   └── workspace.store.ts             
+│   │
 │   ├── types/
-│   │   └── auth.ts                    # Frontend auth types
-│   └── public/                        # Static assets served as-is
-│       ├── file.svg
-│       ├── globe.svg
-│       ├── next.svg
-│       ├── vercel.svg
-│       └── window.svg
+│   │   ├── auth.ts
+│   │   └── workspace.ts                   
+│   │
+│   └── public/
 │
 ├── docs/
-│   └── file_structure.md              # This document
-└── scripts/                           # Project maintenance scripts
-
-## Notes
-
-- Local environment files such as `backend/.env` and `frontend/.env` are intentionally not listed because they contain machine-specific or secret values.
-- Generated directories such as `node_modules/` and `frontend/.next/` are intentionally omitted.
-- Tool-specific instruction directories are also omitted because they do not belong to the application runtime structure.
+│   ├── file_structure.md
+│   └── workspace.md                        
+│
+└── scripts/
