@@ -5,33 +5,42 @@ notion-clone/
 ├── .gitignore
 │
 ├── backend/
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── tsconfig.json
-│   ├── prisma.config.ts
-│   ├── skills-lock.json
-│   ├── .env
-│   ├── .gitignore
-│   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── migrations/
-│   │       └── 20260806080544_init/
-│   │           └── migration.sql
-│   └── src/
-│       ├── app.ts
-│       ├── index.ts
-│       ├── server.ts
-│       ├── config/
-│       │   └── env.ts
-│       ├── controllers/
-│       ├── database/
-│       ├── middlewares/
-│       ├── repositories/
-│       ├── routes/
-│       ├── services/
-│       ├── types/
-│       ├── utils/
-│       └── validators/
+│
+├── config/
+│   ├── env.ts
+│   └── jwt.ts
+│
+├── controllers/
+│   └── auth.controller.ts
+│
+├── services/
+│   └── auth.service.ts
+│
+├── repositories/
+│   └── user.repository.ts
+│
+├── routes/
+│   ├── auth.routes.ts
+│   └── index.ts
+│
+├── middlewares/
+│   ├── auth.middleware.ts
+│   ├── error.middleware.ts
+│   └── validate.middleware.ts
+│
+├── validators/
+│   └── auth.validator.ts
+│
+├── utils/
+│   ├── hash.ts
+│   ├── jwt.ts
+│   └── response.ts
+│
+├── types/
+│
+├── app.ts
+├── server.ts
+└── index.ts
 │
 ├── frontend/
 │   ├── package.json
