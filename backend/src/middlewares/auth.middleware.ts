@@ -6,16 +6,8 @@ import type {
 
 import { verifyAccessToken } from "../utils/jwt";
 
-export interface AuthenticatedRequest
-  extends Request {
-  user?: {
-    id: string;
-    email: string;
-  };
-}
-
 export function requireAuth(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) {
