@@ -1,5 +1,6 @@
 "use client";
-
+import { login } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/auth.store";
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -21,7 +22,7 @@ export default function LoginPage() {
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
+    const setAuth = useAuthStore((state) => state.setAuth);
     const handleSubmit = async (
         event: React.FormEvent<HTMLFormElement>,
     ) => {
@@ -40,14 +41,35 @@ export default function LoginPage() {
             return;
         }
 
-        setLoading(true);
+        try {
+            setLoading(true);
 
-        // Backend authentication will be connected later.
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            const response =
+                await login(
+                    result.data.email,
+                    result.data.password,
+                );
 
-        setLoading(false);
+            setAuth(
+                response.data.user,
+                response.data.accessToken,
+            );
 
-        console.log("Login:", result.data);
+            console.log(
+                "Authenticated:",
+                response.data.user,
+            );
+
+            // Temporary:
+            window.location.href = "/dashboard";
+        } catch (error: any) {
+            setError(
+                error?.response?.data?.error?.message ??
+                "Unable to sign in",
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

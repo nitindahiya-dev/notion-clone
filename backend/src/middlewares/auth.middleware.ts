@@ -16,7 +16,7 @@ export interface AuthenticatedRequest
 
 export function requireAuth(
   req: AuthenticatedRequest,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ) {
   try {
@@ -48,7 +48,8 @@ export function requireAuth(
     return res.status(401).json({
       success: false,
       error: {
-        message: "Invalid or expired access token",
+        message:
+          "Invalid or expired access token",
       },
     });
   }

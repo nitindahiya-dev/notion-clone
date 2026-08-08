@@ -1,45 +1,107 @@
 import crypto from "crypto";
 
+import { env } from "../config/env";
 import { prisma } from "../database/prisma";
-import { UserRepository } from "../repositories/user.repository";
+import { AppError } from "../utils/app-error";
 import {
   comparePassword,
   hashPassword,
 } from "../utils/hash";
 import { generateAccessToken } from "../utils/jwt";
-import { env } from "../config/env";
+import { UserRepository } from "../repositories/user.repository";
+import { SessionRepository } from "../repositories/session.repository";
 
 export class AuthService {
   private userRepository = new UserRepository();
+
+  private sessionRepository =
+    new SessionRepository();
+
+  private generateRefreshToken() {
+    return crypto.randomBytes(48).toString("hex");
+  }
+
+  private hashRefreshToken(token: string) {
+    return crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+  }
+
+  private getRefreshTokenExpiry() {
+    const expiresAt = new Date();
+
+    expiresAt.setDate(
+      expiresAt.getDate() +
+        env.REFRESH_TOKEN_EXPIRES_DAYS,
+    );
+
+    return expiresAt;
+  }
 
   async register(data: {
     name: string;
     email: string;
     password: string;
+    userAgent?: string;
+    ipAddress?: string;
   }) {
     const existingUser =
-      await this.userRepository.findByEmail(data.email);
+      await this.userRepository.findByEmail(
+        data.email,
+      );
 
     if (existingUser) {
-      throw new Error("An account with this email already exists");
+      throw new AppError(
+        "An account with this email already exists",
+        409,
+      );
     }
 
-    const passwordHash = await hashPassword(
-      data.password,
-    );
+    const passwordHash =
+      await hashPassword(data.password);
 
-    const user = await this.userRepository.create({
-      name: data.name,
-      email: data.email,
-      password: passwordHash,
+    const user =
+      await this.userRepository.create({
+        name: data.name,
+        email: data.email,
+        password: passwordHash,
+      });
+
+    const accessToken =
+      generateAccessToken({
+        sub: user.id,
+        email: user.email,
+      });
+
+    const refreshToken =
+      this.generateRefreshToken();
+
+    const tokenHash =
+      this.hashRefreshToken(refreshToken);
+
+    const expiresAt =
+      this.getRefreshTokenExpiry();
+
+    const session =
+      await this.sessionRepository.createSession({
+        userId: user.id,
+        userAgent: data.userAgent,
+        ipAddress: data.ipAddress,
+        expiresAt,
+      });
+
+    await this.sessionRepository.createRefreshToken({
+      tokenHash,
+      userId: user.id,
+      sessionId: session.id,
+      expiresAt,
     });
 
     return {
       user,
-      accessToken: generateAccessToken({
-        sub: user.id,
-        email: user.email,
-      }),
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -50,10 +112,15 @@ export class AuthService {
     ipAddress?: string,
   ) {
     const user =
-      await this.userRepository.findByEmail(email);
+      await this.userRepository.findByEmail(
+        email,
+      );
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new AppError(
+        "Invalid email or password",
+        401,
+      );
     }
 
     const passwordValid =
@@ -63,45 +130,40 @@ export class AuthService {
       );
 
     if (!passwordValid) {
-      throw new Error("Invalid email or password");
+      throw new AppError(
+        "Invalid email or password",
+        401,
+      );
     }
 
-    const accessToken = generateAccessToken({
-      sub: user.id,
-      email: user.email,
-    });
+    const accessToken =
+      generateAccessToken({
+        sub: user.id,
+        email: user.email,
+      });
 
     const refreshToken =
-      crypto.randomBytes(48).toString("hex");
+      this.generateRefreshToken();
 
-    const tokenHash = crypto
-      .createHash("sha256")
-      .update(refreshToken)
-      .digest("hex");
+    const tokenHash =
+      this.hashRefreshToken(refreshToken);
 
-    const expiresAt = new Date();
+    const expiresAt =
+      this.getRefreshTokenExpiry();
 
-    expiresAt.setDate(
-      expiresAt.getDate() +
-        env.REFRESH_TOKEN_EXPIRES_DAYS,
-    );
-
-    const session = await prisma.session.create({
-      data: {
+    const session =
+      await this.sessionRepository.createSession({
         userId: user.id,
         userAgent,
         ipAddress,
         expiresAt,
-      },
-    });
+      });
 
-    await prisma.refreshToken.create({
-      data: {
-        tokenHash,
-        userId: user.id,
-        sessionId: session.id,
-        expiresAt,
-      },
+    await this.sessionRepository.createRefreshToken({
+      tokenHash,
+      userId: user.id,
+      sessionId: session.id,
+      expiresAt,
     });
 
     return {
@@ -115,12 +177,113 @@ export class AuthService {
     };
   }
 
+  async refresh(refreshToken: string) {
+    const tokenHash =
+      this.hashRefreshToken(refreshToken);
+
+    const storedToken =
+      await this.sessionRepository.findRefreshToken(
+        tokenHash,
+      );
+
+    if (!storedToken) {
+      throw new AppError(
+        "Invalid refresh token",
+        401,
+      );
+    }
+
+    if (storedToken.revokedAt) {
+      throw new AppError(
+        "Refresh token has been revoked",
+        401,
+      );
+    }
+
+    if (
+      storedToken.expiresAt <= new Date()
+    ) {
+      throw new AppError(
+        "Refresh token has expired",
+        401,
+      );
+    }
+
+    if (
+      storedToken.session.expiresAt <=
+      new Date()
+    ) {
+      throw new AppError(
+        "Session has expired",
+        401,
+      );
+    }
+
+    const newRefreshToken =
+      this.generateRefreshToken();
+
+    const newTokenHash =
+      this.hashRefreshToken(
+        newRefreshToken,
+      );
+
+    const newExpiresAt =
+      this.getRefreshTokenExpiry();
+
+    await this.sessionRepository.rotateRefreshToken(
+      storedToken.id,
+      {
+        tokenHash: newTokenHash,
+        userId: storedToken.userId,
+        sessionId: storedToken.sessionId,
+        expiresAt: newExpiresAt,
+      },
+    );
+
+    const accessToken =
+      generateAccessToken({
+        sub: storedToken.user.id,
+        email: storedToken.user.email,
+      });
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: storedToken.user.id,
+        name: storedToken.user.name,
+        email: storedToken.user.email,
+      },
+    };
+  }
+
+  async logout(refreshToken: string) {
+    const tokenHash =
+      this.hashRefreshToken(refreshToken);
+
+    const storedToken =
+      await this.sessionRepository.findRefreshToken(
+        tokenHash,
+      );
+
+    if (!storedToken) {
+      return;
+    }
+
+    await this.sessionRepository.revokeSession(
+      storedToken.sessionId,
+    );
+  }
+
   async getUser(id: string) {
     const user =
       await this.userRepository.findById(id);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError(
+        "User not found",
+        404,
+      );
     }
 
     return user;

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-
+import { register } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/auth.store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,8 @@ export default function RegisterPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const setAuth =
+    useAuthStore((state) => state.setAuth);
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -44,12 +46,31 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // Backend registration will be connected later.
-    await new Promise((resolve) => setTimeout(resolve, 800));
+      const response =
+        await register(
+          result.data.name,
+          result.data.email,
+          result.data.password,
+        );
 
-    setLoading(false);
+      setAuth(
+        response.data.user,
+        response.data.accessToken,
+      );
+
+      window.location.href =
+        "/dashboard";
+    } catch (error: any) {
+      setError(
+        error?.response?.data?.error?.message ??
+        "Unable to create account",
+      );
+    } finally {
+      setLoading(false);
+    }
 
     console.log("Register:", result.data);
   };
