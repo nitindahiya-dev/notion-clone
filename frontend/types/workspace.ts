@@ -57,3 +57,12 @@ export interface WorkspaceMemberResponse {
   role: "OWNER" | "ADMIN" | "MEMBER" | "GUEST";
   joinedAt: Date;
 }
+
+export interface WorkspaceMember {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: WorkspaceRole;
+  joinedAt: string;
+}

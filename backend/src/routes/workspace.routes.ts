@@ -48,7 +48,8 @@ router.post(
 );
 
 /*
- * Workspace members (Placed before /:workspaceId to prevent routing conflicts)
+ * IMPORTANT:
+ * Member routes come before /:workspaceId
  */
 
 router.get(

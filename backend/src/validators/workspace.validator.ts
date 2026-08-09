@@ -28,3 +28,22 @@ export const updateWorkspaceSchema = z.object({
     .max(200, "Description cannot exceed 200 characters")
     .optional(),
 });
+
+export const addWorkspaceMemberSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email("Invalid email address"),
+
+  role: z
+    .enum(["ADMIN", "MEMBER", "GUEST"])
+    .default("MEMBER"),
+});
+
+export const updateWorkspaceMemberSchema = z.object({
+  role: z.enum([
+    "ADMIN",
+    "MEMBER",
+    "GUEST",
+  ]),
+});

@@ -1,46 +1,28 @@
 "use client";
 
-import {
-  useState,
-} from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-import {
-  createWorkspace,
-} from "@/lib/api/workspace";
-
-import {
-  useWorkspaceStore,
-} from "@/stores/workspace.store";
+import { createWorkspace } from "@/lib/api/workspace";
+import { useWorkspaceStore } from "@/stores/workspace.store";
 
 export function CreateWorkspaceDialog() {
-  const [
-    name,
-    setName,
-  ] = useState("");
+  const router = useRouter();
 
-  const [
-    description,
-    setDescription,
-  ] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const addWorkspace = useWorkspaceStore(
+    (state) => state.addWorkspace
+  );
 
-  const addWorkspace =
-    useWorkspaceStore(
-      (state) => state.addWorkspace,
-    );
-
-  const setCurrentWorkspace =
-    useWorkspaceStore(
-      (state) =>
-        state.setCurrentWorkspace,
-    );
+  const setCurrentWorkspace = useWorkspaceStore(
+    (state) => state.setCurrentWorkspace
+  );
 
   async function handleSubmit(
-    event: React.FormEvent,
+    event: React.FormEvent
   ) {
     event.preventDefault();
 
@@ -51,20 +33,18 @@ export function CreateWorkspaceDialog() {
     try {
       setLoading(true);
 
-      const response =
-        await createWorkspace(
-          name,
-          description || undefined,
-        );
+      const response = await createWorkspace(
+        name,
+        description || undefined
+      );
 
-      const workspace =
-        response.data.workspace;
+      const workspace = response.data.workspace;
 
       addWorkspace(workspace);
 
-      setCurrentWorkspace(
-        workspace,
-      );
+      setCurrentWorkspace(workspace);
+
+      router.push("/dashboard");
 
       setName("");
       setDescription("");
@@ -102,7 +82,7 @@ export function CreateWorkspaceDialog() {
         value={description}
         onChange={(event) =>
           setDescription(
-            event.target.value,
+            event.target.value
           )
         }
         placeholder="Description (optional)"

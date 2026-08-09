@@ -40,22 +40,45 @@ export class WorkspaceService {
     return slug;
   }
 
-  async createWorkspace(
-    userId: string,
-    input: CreateWorkspaceInput,
-  ) {
-    const slug =
-      await this.generateUniqueSlug(
-        input.name,
-      );
+async createWorkspace(
+  userId: string,
+  input: CreateWorkspaceInput,
+) {
+  const slug =
+    await this.generateUniqueSlug(
+      input.name,
+    );
 
-    return this.repository.createWorkspace({
+  const workspace =
+    await this.repository.createWorkspace({
       name: input.name,
       description: input.description,
       slug,
       userId,
     });
+
+  const membership =
+    await this.repository.findUserMembership(
+      workspace.id,
+      userId,
+    );
+
+  if (!membership) {
+    throw new AppError(
+      "Workspace membership could not be created",
+      500,
+    );
   }
+
+  return {
+    ...workspace,
+
+    membership: {
+      role: membership.role,
+      joinedAt: membership.joinedAt,
+    },
+  };
+}
 
   async getUserWorkspaces(
     userId: string,
