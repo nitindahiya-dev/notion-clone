@@ -115,4 +115,76 @@ export class WorkspaceRepository {
       },
     });
   }
+
+  async findMembers(workspaceId: string) {
+    return prisma.workspaceMember.findMany({
+      where: {
+        workspaceId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        joinedAt: "asc",
+      },
+    });
+  }
+
+  async addMember(
+    workspaceId: string,
+    userId: string,
+    role: WorkspaceRole = "MEMBER",
+  ) {
+    return prisma.workspaceMember.create({
+      data: {
+        workspaceId,
+        userId,
+        role,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findMember(
+    workspaceId: string,
+    userId: string,
+  ) {
+    return prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+  }
+
+  async removeMember(
+    workspaceId: string,
+    userId: string,
+  ) {
+    return prisma.workspaceMember.delete({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+  }
 }
+

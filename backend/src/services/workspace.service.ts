@@ -1,4 +1,8 @@
 import slugify from "slugify";
+import { UserRepository } from "../repositories/user.repository";
+import type {
+  AddWorkspaceMemberInput,
+} from "../types/workspace";
 
 import { WorkspaceRepository } from "../repositories/workspace.repository";
 import { AppError } from "../utils/app-error";
@@ -10,6 +14,9 @@ import type {
 export class WorkspaceService {
   private repository =
     new WorkspaceRepository();
+
+  private userRepository =
+    new UserRepository();
 
   private async generateUniqueSlug(
     name: string,
@@ -145,6 +152,157 @@ export class WorkspaceService {
 
     return this.repository.deleteWorkspace(
       workspaceId,
+    );
+  }
+
+  async getMembers(
+    workspaceId: string,
+    userId: string,
+  ) {
+    await this.requireRole(
+      workspaceId,
+      userId,
+      [
+        "OWNER",
+        "ADMIN",
+        "MEMBER",
+        "GUEST",
+      ],
+    );
+
+    const members =
+      await this.repository.findMembers(
+        workspaceId,
+      );
+
+    return members.map(
+      (member) => ({
+        id: member.id,
+        userId: member.userId,
+        name: member.user.name,
+        email: member.user.email,
+        role: member.role,
+        joinedAt: member.joinedAt,
+      }),
+    );
+  }
+
+  async addMember(
+    workspaceId: string,
+    requesterId: string,
+    input: AddWorkspaceMemberInput,
+  ) {
+    await this.requireRole(
+      workspaceId,
+      requesterId,
+      ["OWNER", "ADMIN"],
+    );
+
+    const user =
+      await this.userRepository.findByEmail(
+        input.email,
+      );
+
+    if (!user) {
+      throw new AppError(
+        "User not found",
+        404,
+      );
+    }
+
+    const existing =
+      await this.repository.findMember(
+        workspaceId,
+        user.id,
+      );
+
+    if (existing) {
+      throw new AppError(
+        "User is already a member of this workspace",
+        409,
+      );
+    }
+
+    return this.repository.addMember(
+      workspaceId,
+      user.id,
+      input.role ?? "MEMBER",
+    );
+  }
+
+  async updateMemberRole(
+    workspaceId: string,
+    requesterId: string,
+    userId: string,
+    role: "ADMIN" | "MEMBER" | "GUEST",
+  ) {
+    await this.requireRole(
+      workspaceId,
+      requesterId,
+      ["OWNER"],
+    );
+
+    const member =
+      await this.repository.findMember(
+        workspaceId,
+        userId,
+      );
+
+    if (!member) {
+      throw new AppError(
+        "Workspace member not found",
+        404,
+      );
+    }
+
+    if (member.role === "OWNER") {
+      throw new AppError(
+        "The workspace owner cannot be demoted",
+        400,
+      );
+    }
+
+    return this.repository.updateMemberRole(
+      workspaceId,
+      userId,
+      role,
+    );
+  }
+
+  async removeMember(
+    workspaceId: string,
+    requesterId: string,
+    userId: string,
+  ) {
+    await this.requireRole(
+      workspaceId,
+      requesterId,
+      ["OWNER", "ADMIN"],
+    );
+
+    const member =
+      await this.repository.findMember(
+        workspaceId,
+        userId,
+      );
+
+    if (!member) {
+      throw new AppError(
+        "Workspace member not found",
+        404,
+      );
+    }
+
+    if (member.role === "OWNER") {
+      throw new AppError(
+        "The workspace owner cannot be removed",
+        400,
+      );
+    }
+
+    return this.repository.removeMember(
+      workspaceId,
+      userId,
     );
   }
 

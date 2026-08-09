@@ -129,3 +129,112 @@ export async function deleteWorkspace(
     next(error);
   }
 }
+
+export async function getMembers(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const members =
+      await service.getMembers(
+        req.params.workspaceId,
+        getUserId(req),
+      );
+
+    return sendSuccess(res, {
+      members,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function addMember(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const member =
+      await service.addMember(
+        req.params.workspaceId,
+        getUserId(req),
+        req.body,
+      );
+
+    return sendSuccess(
+      res,
+      { member },
+      201,
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function addMember(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const member =
+      await service.addMember(
+        req.params.workspaceId,
+        getUserId(req),
+        req.body,
+      );
+
+    return sendSuccess(
+      res,
+      { member },
+      201,
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateMemberRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const member =
+      await service.updateMemberRole(
+        req.params.workspaceId,
+        getUserId(req),
+        req.params.userId,
+        req.body.role,
+      );
+
+    return sendSuccess(res, {
+      member,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function removeMember(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    await service.removeMember(
+      req.params.workspaceId,
+      getUserId(req),
+      req.params.userId,
+    );
+
+    return sendSuccess(res, {
+      message:
+        "Member removed successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}

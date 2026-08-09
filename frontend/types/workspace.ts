@@ -43,3 +43,17 @@ export interface Workspace {
   updatedAt: string;
   membership: WorkspaceMembership;
 }
+
+export interface AddWorkspaceMemberInput {
+  email: string;
+  role?: "ADMIN" | "MEMBER" | "GUEST";
+}
+
+export interface WorkspaceMemberResponse {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: "OWNER" | "ADMIN" | "MEMBER" | "GUEST";
+  joinedAt: Date;
+}
