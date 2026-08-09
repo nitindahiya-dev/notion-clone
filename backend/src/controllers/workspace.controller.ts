@@ -8,10 +8,9 @@ import { WorkspaceService } from "../services/workspace.service";
 import { AppError } from "../utils/app-error";
 import { sendSuccess } from "../utils/response";
 
-const service =
-  new WorkspaceService();
+const service = new WorkspaceService();
 
-function getUserId(req: Request) {
+function getUserId(req: Request): string {
   if (!req.user) {
     throw new AppError(
       "Authentication required",
@@ -22,17 +21,19 @@ function getUserId(req: Request) {
   return req.user.id;
 }
 
+// ─────────────────────────────────────────────
+// Workspace
+// ─────────────────────────────────────────────
+
 export async function createWorkspace(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = getUserId(req);
-
     const workspace =
       await service.createWorkspace(
-        userId,
+        getUserId(req),
         req.body,
       );
 
@@ -52,11 +53,9 @@ export async function getWorkspaces(
   next: NextFunction,
 ) {
   try {
-    const userId = getUserId(req);
-
     const workspaces =
       await service.getUserWorkspaces(
-        userId,
+        getUserId(req),
       );
 
     return sendSuccess(res, {
@@ -73,12 +72,10 @@ export async function getWorkspace(
   next: NextFunction,
 ) {
   try {
-    const userId = getUserId(req);
-
     const workspace =
       await service.getWorkspace(
         req.params.workspaceId,
-        userId,
+        getUserId(req),
       );
 
     return sendSuccess(res, {
@@ -130,6 +127,10 @@ export async function deleteWorkspace(
   }
 }
 
+// ─────────────────────────────────────────────
+// Members
+// ─────────────────────────────────────────────
+
 export async function getMembers(
   req: Request,
   res: Response,
@@ -145,29 +146,6 @@ export async function getMembers(
     return sendSuccess(res, {
       members,
     });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function addMember(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const member =
-      await service.addMember(
-        req.params.workspaceId,
-        getUserId(req),
-        req.body,
-      );
-
-    return sendSuccess(
-      res,
-      { member },
-      201,
-    );
   } catch (error) {
     next(error);
   }
