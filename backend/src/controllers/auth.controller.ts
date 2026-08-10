@@ -4,9 +4,9 @@ import type {
   NextFunction,
 } from "express";
 
-import { AuthService } from "../services/auth.service";
-import { sendSuccess } from "../utils/response";
-import { AppError } from "../utils/app-error";
+import { AuthService } from "../services/auth.service.js";
+import { sendSuccess } from "../utils/response.js";
+import { AppError } from "../utils/app-error.js";
 
 const authService = new AuthService();
 

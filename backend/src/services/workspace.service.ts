@@ -1,16 +1,16 @@
 import slugify from "slugify";
-import { UserRepository } from "../repositories/user.repository";
+import { UserRepository } from "../repositories/user.repository.js";
 import type {
   AddWorkspaceMemberInput,
-} from "../types/workspace";
+} from "../types/workspace.js";
 
-import { WorkspaceRepository } from "../repositories/workspace.repository";
-import { AppError } from "../utils/app-error";
+import { WorkspaceRepository } from "../repositories/workspace.repository.js";
+import { AppError } from "../utils/app-error.js";
 import type {
   CreateWorkspaceInput,
   UpdateWorkspaceInput,
-} from "../types/workspace";
-
+} from "../types/workspace.js";
+// workspace.js is empty ..there's nothing in there
 export class WorkspaceService {
   private repository =
     new WorkspaceRepository();
@@ -49,13 +49,15 @@ async createWorkspace(
       input.name,
     );
 
-  const workspace =
-    await this.repository.createWorkspace({
-      name: input.name,
+const workspace =
+  await this.repository.createWorkspace({
+    name: input.name,
+    ...(input.description !== undefined && {
       description: input.description,
-      slug,
-      userId,
-    });
+    }),
+    slug,
+    userId,
+  });
 
   const membership =
     await this.repository.findUserMembership(

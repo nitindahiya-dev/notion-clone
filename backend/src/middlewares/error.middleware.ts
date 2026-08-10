@@ -4,7 +4,7 @@ import type {
   NextFunction,
 } from "express";
 
-import { AppError } from "../utils/app-error";
+import { AppError } from "../utils/app-error.js";
 
 export function errorMiddleware(
   error: unknown,

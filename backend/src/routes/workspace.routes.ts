@@ -10,23 +10,23 @@ import {
   addMember,
   updateMemberRole,
   removeMember,
-} from "../controllers/workspace.controller";
+} from "../controllers/workspace.controller.js";
 
-import { requireAuth } from "../middlewares/auth.middleware";
+import { requireAuth } from "../middlewares/auth.middleware.js";
 
 import {
   requireWorkspaceMember,
   requireWorkspaceRole,
-} from "../middlewares/workspace.middleware";
+} from "../middlewares/workspace.middleware.js";
 
-import { validate } from "../middlewares/validate.middleware";
+import { validate } from "../middlewares/validate.middleware.js";
 
 import {
   createWorkspaceSchema,
   updateWorkspaceSchema,
   addWorkspaceMemberSchema,
   updateWorkspaceMemberSchema,
-} from "../validators/workspace.validator";
+} from "../validators/workspace.validator.js";
 
 const router = Router();
 

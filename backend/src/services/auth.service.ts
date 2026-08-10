@@ -1,15 +1,15 @@
 import crypto from "crypto";
 
-import { env } from "../config/env";
-import { prisma } from "../database/prisma";
-import { AppError } from "../utils/app-error";
+import { env } from "../config/env.js";
+import { prisma } from "../database/prisma.js";
+import { AppError } from "../utils/app-error.js";
 import {
   comparePassword,
   hashPassword,
-} from "../utils/hash";
-import { generateAccessToken } from "../utils/jwt";
-import { UserRepository } from "../repositories/user.repository";
-import { SessionRepository } from "../repositories/session.repository";
+} from "../utils/hash.js";
+import { generateAccessToken } from "../utils/jwt.js";
+import { UserRepository } from "../repositories/user.repository.js";
+import { SessionRepository } from "../repositories/session.repository.js";
 
 export class AuthService {
   private userRepository = new UserRepository();
@@ -33,7 +33,7 @@ export class AuthService {
 
     expiresAt.setDate(
       expiresAt.getDate() +
-        env.REFRESH_TOKEN_EXPIRES_DAYS,
+      env.REFRESH_TOKEN_EXPIRES_DAYS,
     );
 
     return expiresAt;
@@ -86,8 +86,12 @@ export class AuthService {
     const session =
       await this.sessionRepository.createSession({
         userId: user.id,
-        userAgent: data.userAgent,
-        ipAddress: data.ipAddress,
+        ...(data.userAgent !== undefined && {
+          userAgent: data.userAgent,
+        }),
+        ...(data.ipAddress !== undefined && {
+          ipAddress: data.ipAddress,
+        }),
         expiresAt,
       });
 
@@ -154,11 +158,14 @@ export class AuthService {
     const session =
       await this.sessionRepository.createSession({
         userId: user.id,
-        userAgent,
-        ipAddress,
+        ...(userAgent !== undefined && {
+          userAgent,
+        }),
+        ...(ipAddress !== undefined && {
+          ipAddress,
+        }),
         expiresAt,
       });
-
     await this.sessionRepository.createRefreshToken({
       tokenHash,
       userId: user.id,

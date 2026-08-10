@@ -58,6 +58,10 @@ export interface WorkspaceMemberResponse {
   joinedAt: Date;
 }
 
+export interface UpdateWorkspaceMemberInput {
+  role: "ADMIN" | "MEMBER" | "GUEST";
+}
+
 export interface WorkspaceMember {
   id: string;
   userId: string;

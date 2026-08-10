@@ -5,9 +5,9 @@ import type {
 } from "express";
 
 import type { WorkspaceRole } from "@prisma/client";
-
-import { WorkspaceRepository } from "../repositories/workspace.repository";
-import { AppError } from "../utils/app-error";
+import { getWorkspaceId } from "../utils/request.js";
+import { WorkspaceRepository } from "../repositories/workspace.repository.js";
+import { AppError } from "../utils/app-error.js";
 
 const repository =
   new WorkspaceRepository();
@@ -25,8 +25,7 @@ export async function requireWorkspaceMember(
       );
     }
 
-    const workspaceId =
-      req.params.workspaceId;
+    const workspaceId = getWorkspaceId(req);
 
     if (!workspaceId) {
       throw new AppError(

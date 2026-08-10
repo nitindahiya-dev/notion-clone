@@ -3,10 +3,12 @@ import type {
   Response,
   NextFunction,
 } from "express";
-
-import { WorkspaceService } from "../services/workspace.service";
-import { AppError } from "../utils/app-error";
-import { sendSuccess } from "../utils/response";
+import {
+  getRouteParam,
+  getWorkspaceId,
+} from "../utils/request.js"; import { WorkspaceService } from "../services/workspace.service.js";
+import { AppError } from "../utils/app-error.js";
+import { sendSuccess } from "../utils/response.js";
 
 const service = new WorkspaceService();
 
@@ -74,7 +76,7 @@ export async function getWorkspace(
   try {
     const workspace =
       await service.getWorkspace(
-        req.params.workspaceId,
+        getWorkspaceId(req),
         getUserId(req),
       );
 
@@ -94,7 +96,7 @@ export async function updateWorkspace(
   try {
     const workspace =
       await service.updateWorkspace(
-        req.params.workspaceId,
+        getWorkspaceId(req),
         getUserId(req),
         req.body,
       );
@@ -114,7 +116,7 @@ export async function deleteWorkspace(
 ) {
   try {
     await service.deleteWorkspace(
-      req.params.workspaceId,
+      getWorkspaceId(req),
       getUserId(req),
     );
 
@@ -139,7 +141,7 @@ export async function getMembers(
   try {
     const members =
       await service.getMembers(
-        req.params.workspaceId,
+        getWorkspaceId(req),
         getUserId(req),
       );
 
@@ -159,7 +161,7 @@ export async function addMember(
   try {
     const member =
       await service.addMember(
-        req.params.workspaceId,
+        getWorkspaceId(req),
         getUserId(req),
         req.body,
       );
@@ -182,9 +184,9 @@ export async function updateMemberRole(
   try {
     const member =
       await service.updateMemberRole(
-        req.params.workspaceId,
+        getWorkspaceId(req),
         getUserId(req),
-        req.params.userId,
+        getRouteParam(req, "userId"),
         req.body.role,
       );
 
@@ -203,9 +205,9 @@ export async function removeMember(
 ) {
   try {
     await service.removeMember(
-      req.params.workspaceId,
+      getWorkspaceId(req),
       getUserId(req),
-      req.params.userId,
+      getRouteParam(req, "userId"),
     );
 
     return sendSuccess(res, {

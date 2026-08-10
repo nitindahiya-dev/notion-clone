@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import authRoutes from "./auth.routes";
-import workspaceRoutes from "./workspace.routes";
+import authRoutes from "./auth.routes.js";
+import workspaceRoutes from "./workspace.routes.js";
 
 const router = Router();
 

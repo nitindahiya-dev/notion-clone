@@ -1,4 +1,4 @@
-import { prisma } from "../database/prisma";
+import { prisma } from "../database/prisma.js";
 import type { WorkspaceRole } from "@prisma/client";
 
 export class WorkspaceRepository {
@@ -13,7 +13,7 @@ export class WorkspaceRepository {
         data: {
           name: data.name,
           slug: data.slug,
-          description: data.description,
+          description: data.description ?? null,
         },
       });
 

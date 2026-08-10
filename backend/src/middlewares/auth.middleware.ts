@@ -4,7 +4,7 @@ import type {
   NextFunction,
 } from "express";
 
-import { verifyAccessToken } from "../utils/jwt";
+import { verifyAccessToken } from "../utils/jwt.js";
 
 export function requireAuth(
   req: Request,
