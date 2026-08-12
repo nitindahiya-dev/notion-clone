@@ -7,6 +7,7 @@ notion-clone/
 ├── .gitignore
 │
 ├── backend/                          # Express API and Prisma database layer
+│   ├── .gitignore                    # Backend-specific ignore rules
 │   ├── package.json                  # Backend scripts and dependencies
 │   ├── package-lock.json             # Locked backend dependency versions
 │   ├── prisma.config.ts              # Prisma CLI configuration
@@ -79,6 +80,7 @@ notion-clone/
 │           └── workspace.validator.ts
 │
 ├── frontend/                         # Next.js web application
+│   ├── .gitignore                    # Frontend-specific ignore rules
 │   ├── package.json                  # Frontend scripts and dependencies
 │   ├── package-lock.json             # Locked frontend dependency versions
 │   ├── tsconfig.json
