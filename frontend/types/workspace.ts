@@ -1,5 +1,3 @@
-import type { WorkspaceRole } from "@prisma/client";
-
 export interface CreateWorkspaceInput {
   name: string;
   description?: string;

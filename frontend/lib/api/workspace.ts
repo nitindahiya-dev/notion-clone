@@ -1,3 +1,5 @@
+// frontend/lib/api/workspace.ts
+
 import { api } from "./client";
 
 import type { Workspace } from "@/types/workspace";
